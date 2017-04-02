@@ -1,0 +1,48 @@
+name:                HaskellPaillier
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/ilyasridhuan/HaskellPaillier#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Ilyas Ridhuan
+maintainer:          ilyasridhuan@gmail.com
+copyright:           2017 Ilyas Ridhuan
+category:            Crypto
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Paillier,PaillierTest
+  build-depends:       base >= 4.7 && < 5
+                    ,  cryptonite
+                    ,  mtl
+                    ,  QuickCheck
+  default-language:    Haskell2010
+
+
+executable HaskellPaillier-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , HaskellPaillier
+                     , mtl
+  default-language:    Haskell2010
+
+test-suite HaskellPaillier-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             PaillierTest.hs
+  build-depends:       base
+                     , HaskellPaillier
+                     , mtl
+                     , QuickCheck
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/ilyasridhuan/HaskellPaillier

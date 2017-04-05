@@ -7,8 +7,6 @@ import Data.Either
 import Control.Monad.Except
 import Paillier
 
-import System.IO.Unsafe
-
 testPaillier :: IO ()
 testPaillier = do
     bits <- generate $ abs `fmap` (arbitrary :: Gen Int) `suchThat` (> 5)

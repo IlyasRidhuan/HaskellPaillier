@@ -1,4 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE NamedFieldPuns             #-}
+
 module Paillier where
 
 import Crypto.Random
@@ -41,13 +44,13 @@ genKeys bits = do
     -- let g = n + 1
     -- more advanced g <= n^2 such that gcd(g,n^2) == 1
     -- a = L(g^λ `mod` n^2)
-    let pubKey = PublicKey{n=n,g=g}
+    let pubKey = PublicKey { n, g }
     case inverse (lPaillier pubKey (expSafe g λ (n*n))) n of
-        Just μ -> return (pubKey, PrivateKey{λ=λ, μ=μ})
+        Just μ -> return (pubKey, PrivateKey { λ, μ })
         Nothing -> throwError NoModuloInverse
 
 encrypt :: PlainText -> PublicKey -> IO CipherText
-encrypt (PlainText m) pk@PublicKey{n=n,g=g} = do
+encrypt (PlainText m) pk@PublicKey{..} = do
     let nSquared = n*n
     let g_m = expSafe g m nSquared
     r   <- generateMax (n-1) >>= generateValidR pk
@@ -56,16 +59,16 @@ encrypt (PlainText m) pk@PublicKey{n=n,g=g} = do
 
 -- A valid r is one that is less than and relatively prime to n, i.e gcd (r,n) == 1
 generateValidR :: PublicKey -> Integer -> IO Integer
-generateValidR pk@PublicKey{n=n} rCandidate
+generateValidR pk@PublicKey{..} rCandidate
     | gcd rCandidate n == 1 = return rCandidate
     | otherwise = generateMax (n-1) >>= generateValidR pk
 
 decrypt :: CipherText -> PrivateKey -> PublicKey -> PlainText
-decrypt (CipherText c) PrivateKey{λ=λ, μ=μ} pub@PublicKey{n=n,g=g} =
+decrypt (CipherText c) PrivateKey{..} pub@PublicKey{..} =
     PlainText $ expSafe (lPaillier pub (expSafe c λ (n*n)) * μ) 1 n
 
 lPaillier :: PublicKey -> Integer -> Integer
-lPaillier PublicKey{n=n,g=g} x = (x-1) `div` n
+lPaillier PublicKey{..} x = (x-1) `div` n
 
 generateValidG :: Integer -> Integer -> IO Integer
 generateValidG nSquare gCandidate
